@@ -1,0 +1,1095 @@
+# PIPELINE DEFINITION
+# Name: yelp-ordinal-rating
+# Inputs:
+#    model_dir: str [Default: 'gs://yelp-review-rating-prediction-mlops/models/manual']
+#    qwk_gate: float [Default: 0.8]
+#    train_model: bool [Default: True]
+components:
+  comp-bigquery-query-job:
+    executorLabel: exec-bigquery-query-job
+    inputDefinitions:
+      parameters:
+        encryption_spec_key_name:
+          defaultValue: ''
+          description: Describes the Cloud KMS encryption key that will be used to
+            protect destination BigQuery table. The BigQuery Service Account associated
+            with your project requires access to this encryption key. If encryption_spec_key_name
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        job_configuration_query:
+          defaultValue: {}
+          description: A json formatted string describing the rest of the job configuration.  For
+            more details, see https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+          isOptional: true
+          parameterType: STRUCT
+        labels:
+          defaultValue: {}
+          description: 'The labels associated with this job. You can use these to
+            organize and group your jobs. Label keys and values can be no longer than
+            63 characters, can only containlowercase letters, numeric characters,
+            underscores and dashes. International characters are allowed. Label values
+            are optional. Label keys must start with a letter and each label in the
+            list must have a different key.
+
+            Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Location for creating the BigQuery job. If not set, default
+            to `US` multi-region.  For more details, see https://cloud.google.com/bigquery/docs/locations#specifying_your_location
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          description: Project to run the BigQuery query job. Defaults to the project
+            in which the PipelineJob is run.
+          isOptional: true
+          parameterType: STRING
+        query:
+          defaultValue: ''
+          description: SQL query text to execute. Only standard SQL is supported.  If
+            query are both specified in here and in job_configuration_query, the value
+            in here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        query_parameters:
+          defaultValue: []
+          description: jobs.query parameters for standard SQL queries.  If query_parameters
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        destination_table:
+          artifactType:
+            schemaTitle: google.BQTable
+            schemaVersion: 0.0.1
+          description: Describes the table where the query results should be stored.
+            This property must be set for large results that exceed the maximum response
+            size. For queries that produce anonymous (cached) results, this field
+            will be populated by BigQuery.
+      parameters:
+        gcp_resources:
+          description: Serialized gcp_resources proto tracking the BigQuery job. For
+            more details, see https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/proto/README.md.
+          parameterType: STRING
+  comp-bigquery-query-job-2:
+    executorLabel: exec-bigquery-query-job-2
+    inputDefinitions:
+      parameters:
+        encryption_spec_key_name:
+          defaultValue: ''
+          description: Describes the Cloud KMS encryption key that will be used to
+            protect destination BigQuery table. The BigQuery Service Account associated
+            with your project requires access to this encryption key. If encryption_spec_key_name
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        job_configuration_query:
+          defaultValue: {}
+          description: A json formatted string describing the rest of the job configuration.  For
+            more details, see https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+          isOptional: true
+          parameterType: STRUCT
+        labels:
+          defaultValue: {}
+          description: 'The labels associated with this job. You can use these to
+            organize and group your jobs. Label keys and values can be no longer than
+            63 characters, can only containlowercase letters, numeric characters,
+            underscores and dashes. International characters are allowed. Label values
+            are optional. Label keys must start with a letter and each label in the
+            list must have a different key.
+
+            Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Location for creating the BigQuery job. If not set, default
+            to `US` multi-region.  For more details, see https://cloud.google.com/bigquery/docs/locations#specifying_your_location
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          description: Project to run the BigQuery query job. Defaults to the project
+            in which the PipelineJob is run.
+          isOptional: true
+          parameterType: STRING
+        query:
+          defaultValue: ''
+          description: SQL query text to execute. Only standard SQL is supported.  If
+            query are both specified in here and in job_configuration_query, the value
+            in here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        query_parameters:
+          defaultValue: []
+          description: jobs.query parameters for standard SQL queries.  If query_parameters
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        destination_table:
+          artifactType:
+            schemaTitle: google.BQTable
+            schemaVersion: 0.0.1
+          description: Describes the table where the query results should be stored.
+            This property must be set for large results that exceed the maximum response
+            size. For queries that produce anonymous (cached) results, this field
+            will be populated by BigQuery.
+      parameters:
+        gcp_resources:
+          description: Serialized gcp_resources proto tracking the BigQuery job. For
+            more details, see https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/proto/README.md.
+          parameterType: STRING
+  comp-bigquery-query-job-3:
+    executorLabel: exec-bigquery-query-job-3
+    inputDefinitions:
+      parameters:
+        encryption_spec_key_name:
+          defaultValue: ''
+          description: Describes the Cloud KMS encryption key that will be used to
+            protect destination BigQuery table. The BigQuery Service Account associated
+            with your project requires access to this encryption key. If encryption_spec_key_name
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        job_configuration_query:
+          defaultValue: {}
+          description: A json formatted string describing the rest of the job configuration.  For
+            more details, see https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobConfigurationQuery
+          isOptional: true
+          parameterType: STRUCT
+        labels:
+          defaultValue: {}
+          description: 'The labels associated with this job. You can use these to
+            organize and group your jobs. Label keys and values can be no longer than
+            63 characters, can only containlowercase letters, numeric characters,
+            underscores and dashes. International characters are allowed. Label values
+            are optional. Label keys must start with a letter and each label in the
+            list must have a different key.
+
+            Example: { "name": "wrench", "mass": "1.3kg", "count": "3" }.'
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: us-central1
+          description: Location for creating the BigQuery job. If not set, default
+            to `US` multi-region.  For more details, see https://cloud.google.com/bigquery/docs/locations#specifying_your_location
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          description: Project to run the BigQuery query job. Defaults to the project
+            in which the PipelineJob is run.
+          isOptional: true
+          parameterType: STRING
+        query:
+          defaultValue: ''
+          description: SQL query text to execute. Only standard SQL is supported.  If
+            query are both specified in here and in job_configuration_query, the value
+            in here will override the other one.
+          isOptional: true
+          parameterType: STRING
+        query_parameters:
+          defaultValue: []
+          description: jobs.query parameters for standard SQL queries.  If query_parameters
+            are both specified in here and in job_configuration_query, the value in
+            here will override the other one.
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        destination_table:
+          artifactType:
+            schemaTitle: google.BQTable
+            schemaVersion: 0.0.1
+          description: Describes the table where the query results should be stored.
+            This property must be set for large results that exceed the maximum response
+            size. For queries that produce anonymous (cached) results, this field
+            will be populated by BigQuery.
+      parameters:
+        gcp_resources:
+          description: Serialized gcp_resources proto tracking the BigQuery job. For
+            more details, see https://github.com/kubeflow/pipelines/blob/master/components/google-cloud/google_cloud_pipeline_components/proto/README.md.
+          parameterType: STRING
+  comp-condition-2:
+    dag:
+      tasks:
+        deploy-cloud-run:
+          cachingOptions: {}
+          componentRef:
+            name: comp-deploy-cloud-run
+          inputs:
+            parameters:
+              cpu:
+                runtimeValue:
+                  constant: '2'
+              image:
+                runtimeValue:
+                  constant: europe-north1-docker.pkg.dev/yelp-review-rating-prediction/yelp-mlops/serve:latest
+              max_instances:
+                runtimeValue:
+                  constant: 3.0
+              memory:
+                runtimeValue:
+                  constant: 4Gi
+              min_instances:
+                runtimeValue:
+                  constant: 0.0
+              model_uri:
+                componentInputParameter: pipelinechannel--model_dir
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+              region:
+                runtimeValue:
+                  constant: europe-north1
+              service:
+                runtimeValue:
+                  constant: yelp-rating-api
+              service_account:
+                runtimeValue:
+                  constant: yelp-mlops@yelp-review-rating-prediction.iam.gserviceaccount.com
+          taskInfo:
+            name: deploy-cloud-run
+    inputDefinitions:
+      parameters:
+        pipelinechannel--model_dir:
+          parameterType: STRING
+        pipelinechannel--qwk_gate:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--read-metrics-qwk:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--train_model:
+          parameterType: BOOLEAN
+  comp-condition-3:
+    dag:
+      tasks:
+        bigquery-query-job:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-bigquery-query-job
+          inputs:
+            parameters:
+              location:
+                runtimeValue:
+                  constant: europe-north1
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+              query:
+                runtimeValue:
+                  constant: "-- BRONZE: land the raw GCS JSON into BigQuery tables\
+                    \ (idempotent OVERWRITE).\n-- Run by the pipeline as a BigQuery\
+                    \ job. Uses BQ's LOAD DATA ... FROM FILES (no bash bq load).\n\
+                    -- attributes/hours kept as JSON to absorb the schema drift in\
+                    \ business.json; silver ignores them.\n\nLOAD DATA OVERWRITE bronze.reviews_raw\
+                    \ (\n  review_id STRING, user_id STRING, business_id STRING,\n\
+                    \  stars FLOAT64, useful INT64, funny INT64, cool INT64,\n  text\
+                    \ STRING, date STRING\n)\nFROM FILES (\n  format = 'JSON',\n \
+                    \ uris = ['gs://yelp-review-rating-prediction-mlops/bronze/review/*.json']\n\
+                    );\n\nLOAD DATA OVERWRITE bronze.business_raw (\n  business_id\
+                    \ STRING, name STRING, address STRING, city STRING, state STRING,\n\
+                    \  postal_code STRING, latitude FLOAT64, longitude FLOAT64,\n\
+                    \  stars FLOAT64, review_count INT64, is_open INT64,\n  categories\
+                    \ STRING, attributes JSON, hours JSON\n)\nFROM FILES (\n  format\
+                    \ = 'JSON',\n  uris = ['gs://yelp-review-rating-prediction-mlops/bronze/business/*.json']\n\
+                    );\n"
+          taskInfo:
+            name: bronze-load
+        bigquery-query-job-2:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-bigquery-query-job-2
+          dependentTasks:
+          - bigquery-query-job
+          inputs:
+            parameters:
+              location:
+                runtimeValue:
+                  constant: europe-north1
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+              query:
+                runtimeValue:
+                  constant: "-- SILVER: cleaned, typed, deduped. Runs with `bq query\
+                    \ --project_id=<PROJECT>`.\n-- Tables are dataset-qualified (no\
+                    \ project prefix) so they resolve to the job's default project.\n\
+                    \n-- Reviews: type-cast, parse timestamp, drop empty/null text,\
+                    \ dedup exact-duplicate text,\n-- and stamp the leakage-safe business-level\
+                    \ split (deterministic via FARM_FINGERPRINT).\nCREATE OR REPLACE\
+                    \ TABLE silver.reviews\nCLUSTER BY split AS\nWITH deduped AS (\n\
+                    \  SELECT *,\n         ROW_NUMBER() OVER (PARTITION BY FARM_FINGERPRINT(text)\
+                    \ ORDER BY date) AS rn\n  FROM bronze.reviews_raw\n  WHERE text\
+                    \ IS NOT NULL AND LENGTH(TRIM(text)) > 0 AND stars IS NOT NULL\n\
+                    )\nSELECT\n  review_id,\n  business_id,\n  user_id,\n  CAST(stars\
+                    \ AS INT64)                                   AS stars,\n  useful,\
+                    \ funny, cool,\n  text,\n  LENGTH(text)                      \
+                    \                    AS text_len,\n  SAFE.PARSE_TIMESTAMP('%Y-%m-%d\
+                    \ %H:%M:%S', date)       AS review_ts,\n  CASE\n    WHEN MOD(ABS(FARM_FINGERPRINT(business_id)),\
+                    \ 100) < 70 THEN 'train'\n    WHEN MOD(ABS(FARM_FINGERPRINT(business_id)),\
+                    \ 100) < 85 THEN 'val'\n    ELSE 'test'\n  END               \
+                    \                                    AS split\nFROM deduped\n\
+                    WHERE rn = 1;\n\n-- Business: keep the modelling-relevant columns;\
+                    \ derive the restaurant flag (EDA: 73% of reviews).\nCREATE OR\
+                    \ REPLACE TABLE silver.business AS\nSELECT\n  business_id,\n \
+                    \ name, city, state, postal_code,\n  latitude, longitude,\n  stars\
+                    \                                                 AS business_avg_stars,\n\
+                    \  review_count,\n  is_open,\n  categories,\n  (LOWER(categories)\
+                    \ LIKE '%restaurant%' OR LOWER(categories) LIKE '%food%') AS is_restaurant\n\
+                    FROM bronze.business_raw\nWHERE business_id IS NOT NULL;\n"
+          taskInfo:
+            name: silver-clean
+        bigquery-query-job-3:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-bigquery-query-job-3
+          dependentTasks:
+          - bigquery-query-job-2
+          inputs:
+            parameters:
+              location:
+                runtimeValue:
+                  constant: europe-north1
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+              query:
+                runtimeValue:
+                  constant: "-- GOLD: ML-ready training set. Text -> stars (ordinal\
+                    \ label), leakage-safe split, restaurant context.\n-- Deterministic\
+                    \ downsample to a tractable, class-preserving set (~100k/20k/20k)\
+                    \ via FARM_FINGERPRINT.\n-- Identifiers (review_id/business_id)\
+                    \ are kept for traceability only, NOT as model features.\n-- user_avg\
+                    \ / business_avg stars are deliberately EXCLUDED (they leak the\
+                    \ label \u2014 see notebook 02).\nCREATE OR REPLACE TABLE gold.training_data\n\
+                    CLUSTER BY split AS\nSELECT\n  r.review_id,\n  r.business_id,\n\
+                    \  r.text,\n  r.stars,\n  r.text_len,\n  COALESCE(b.is_restaurant,\
+                    \ FALSE) AS is_restaurant,\n  r.split\nFROM silver.reviews r\n\
+                    LEFT JOIN silver.business b USING(business_id)\nWHERE\n  (r.split\
+                    \ = 'train'          AND MOD(ABS(FARM_FINGERPRINT(r.review_id)),\
+                    \ 100000) < 2100)\n  OR (r.split IN ('val','test') AND MOD(ABS(FARM_FINGERPRINT(r.review_id)),\
+                    \ 100000) < 1950);\n\n-- Monitoring view: label distribution per\
+                    \ split (feeds a data-quality/drift check).\nCREATE OR REPLACE\
+                    \ VIEW gold.label_distribution AS\nSELECT split, stars, COUNT(*)\
+                    \ AS n,\n       ROUND(100 * COUNT(*) / SUM(COUNT(*)) OVER (PARTITION\
+                    \ BY split), 2) AS pct\nFROM gold.training_data\nGROUP BY split,\
+                    \ stars\nORDER BY split, stars;\n"
+          taskInfo:
+            name: gold-features
+        condition-2:
+          componentRef:
+            name: comp-condition-2
+          dependentTasks:
+          - read-metrics
+          inputs:
+            parameters:
+              pipelinechannel--model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+              pipelinechannel--qwk_gate:
+                componentInputParameter: pipelinechannel--qwk_gate
+              pipelinechannel--read-metrics-qwk:
+                taskOutputParameter:
+                  outputParameterKey: qwk
+                  producerTask: read-metrics
+              pipelinechannel--train_model:
+                componentInputParameter: pipelinechannel--train_model
+          taskInfo:
+            name: qwk-gate
+          triggerPolicy:
+            condition: inputs.parameter_values['pipelinechannel--read-metrics-qwk']
+              >= inputs.parameter_values['pipelinechannel--qwk_gate']
+        read-metrics:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-read-metrics
+          dependentTasks:
+          - train-container
+          inputs:
+            parameters:
+              model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+          taskInfo:
+            name: read-metrics
+        train-container:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-train-container
+          dependentTasks:
+          - bigquery-query-job-3
+          inputs:
+            parameters:
+              location:
+                runtimeValue:
+                  constant: europe-north1
+              model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+          taskInfo:
+            name: train-container
+    inputDefinitions:
+      parameters:
+        pipelinechannel--model_dir:
+          parameterType: STRING
+        pipelinechannel--qwk_gate:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--train_model:
+          parameterType: BOOLEAN
+  comp-condition-4:
+    dag:
+      tasks:
+        condition-5:
+          componentRef:
+            name: comp-condition-5
+          dependentTasks:
+          - read-metrics-2
+          inputs:
+            parameters:
+              pipelinechannel--model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+              pipelinechannel--qwk_gate:
+                componentInputParameter: pipelinechannel--qwk_gate
+              pipelinechannel--read-metrics-2-qwk:
+                taskOutputParameter:
+                  outputParameterKey: qwk
+                  producerTask: read-metrics-2
+              pipelinechannel--train_model:
+                componentInputParameter: pipelinechannel--train_model
+          taskInfo:
+            name: qwk-gate
+          triggerPolicy:
+            condition: inputs.parameter_values['pipelinechannel--read-metrics-2-qwk']
+              >= inputs.parameter_values['pipelinechannel--qwk_gate']
+        read-metrics-2:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-read-metrics-2
+          inputs:
+            parameters:
+              model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+          taskInfo:
+            name: read-metrics-2
+    inputDefinitions:
+      parameters:
+        pipelinechannel--model_dir:
+          parameterType: STRING
+        pipelinechannel--qwk_gate:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--train_model:
+          parameterType: BOOLEAN
+  comp-condition-5:
+    dag:
+      tasks:
+        deploy-cloud-run-2:
+          cachingOptions: {}
+          componentRef:
+            name: comp-deploy-cloud-run-2
+          inputs:
+            parameters:
+              cpu:
+                runtimeValue:
+                  constant: '2'
+              image:
+                runtimeValue:
+                  constant: europe-north1-docker.pkg.dev/yelp-review-rating-prediction/yelp-mlops/serve:latest
+              max_instances:
+                runtimeValue:
+                  constant: 3.0
+              memory:
+                runtimeValue:
+                  constant: 4Gi
+              min_instances:
+                runtimeValue:
+                  constant: 0.0
+              model_uri:
+                componentInputParameter: pipelinechannel--model_dir
+              project:
+                runtimeValue:
+                  constant: yelp-review-rating-prediction
+              region:
+                runtimeValue:
+                  constant: europe-north1
+              service:
+                runtimeValue:
+                  constant: yelp-rating-api
+              service_account:
+                runtimeValue:
+                  constant: yelp-mlops@yelp-review-rating-prediction.iam.gserviceaccount.com
+          taskInfo:
+            name: deploy-cloud-run-2
+    inputDefinitions:
+      parameters:
+        pipelinechannel--model_dir:
+          parameterType: STRING
+        pipelinechannel--qwk_gate:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--read-metrics-2-qwk:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--train_model:
+          parameterType: BOOLEAN
+  comp-condition-branches-1:
+    dag:
+      tasks:
+        condition-3:
+          componentRef:
+            name: comp-condition-3
+          inputs:
+            parameters:
+              pipelinechannel--model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+              pipelinechannel--qwk_gate:
+                componentInputParameter: pipelinechannel--qwk_gate
+              pipelinechannel--train_model:
+                componentInputParameter: pipelinechannel--train_model
+          taskInfo:
+            name: train-and-deploy
+          triggerPolicy:
+            condition: inputs.parameter_values['pipelinechannel--train_model'] ==
+              true
+        condition-4:
+          componentRef:
+            name: comp-condition-4
+          inputs:
+            parameters:
+              pipelinechannel--model_dir:
+                componentInputParameter: pipelinechannel--model_dir
+              pipelinechannel--qwk_gate:
+                componentInputParameter: pipelinechannel--qwk_gate
+              pipelinechannel--train_model:
+                componentInputParameter: pipelinechannel--train_model
+          taskInfo:
+            name: deploy-only
+          triggerPolicy:
+            condition: '!(inputs.parameter_values[''pipelinechannel--train_model'']
+              == true)'
+    inputDefinitions:
+      parameters:
+        pipelinechannel--model_dir:
+          parameterType: STRING
+        pipelinechannel--qwk_gate:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--train_model:
+          parameterType: BOOLEAN
+  comp-deploy-cloud-run:
+    executorLabel: exec-deploy-cloud-run
+    inputDefinitions:
+      parameters:
+        cpu:
+          parameterType: STRING
+        image:
+          parameterType: STRING
+        max_instances:
+          parameterType: NUMBER_INTEGER
+        memory:
+          parameterType: STRING
+        min_instances:
+          parameterType: NUMBER_INTEGER
+        model_uri:
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        region:
+          parameterType: STRING
+        service:
+          parameterType: STRING
+        service_account:
+          parameterType: STRING
+  comp-deploy-cloud-run-2:
+    executorLabel: exec-deploy-cloud-run-2
+    inputDefinitions:
+      parameters:
+        cpu:
+          parameterType: STRING
+        image:
+          parameterType: STRING
+        max_instances:
+          parameterType: NUMBER_INTEGER
+        memory:
+          parameterType: STRING
+        min_instances:
+          parameterType: NUMBER_INTEGER
+        model_uri:
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        region:
+          parameterType: STRING
+        service:
+          parameterType: STRING
+        service_account:
+          parameterType: STRING
+  comp-read-metrics:
+    executorLabel: exec-read-metrics
+    inputDefinitions:
+      parameters:
+        model_dir:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        mae:
+          parameterType: NUMBER_DOUBLE
+        qwk:
+          parameterType: NUMBER_DOUBLE
+  comp-read-metrics-2:
+    executorLabel: exec-read-metrics-2
+    inputDefinitions:
+      parameters:
+        model_dir:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        mae:
+          parameterType: NUMBER_DOUBLE
+        qwk:
+          parameterType: NUMBER_DOUBLE
+  comp-train-container:
+    executorLabel: exec-train-container
+    inputDefinitions:
+      parameters:
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          defaultValue: train-ordinal-encoder
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          defaultValue: '{{$.pipeline_google_cloud_location}}'
+          isOptional: true
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        model_dir:
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          isOptional: true
+          parameterType: STRING
+        psc_interface_config:
+          isOptional: true
+          parameterType: STRUCT
+        reserved_ip_ranges:
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --project
+              - yelp-review-rating-prediction
+              - --gold-table
+              - yelp-review-rating-prediction.gold.training_data
+              - --model-dir
+              - '{{$.inputs.parameters[''model_dir'']}}'
+              - --base-encoder
+              - distilbert-base-uncased-finetuned-sst-2-english
+              - --max-seq-len
+              - '160'
+              - --train-rows
+              - '20000'
+              - --epochs
+              - '100'
+              - --patience
+              - '5'
+              - --max-grad-norm
+              - '1.0'
+              - --batch-size
+              - '32'
+              - --lr
+              - 2e-05
+              command:
+              - python
+              - /app/train.py
+              env: []
+              image_uri: europe-north1-docker.pkg.dev/yelp-review-rating-prediction/yelp-mlops/train:latest
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-highmem-8
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+defaultPipelineRoot: gs://yelp-review-rating-prediction-mlops/pipeline_root
+deploymentSpec:
+  executors:
+    exec-bigquery-query-job:
+      container:
+        args:
+        - --type
+        - BigqueryQueryJob
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --payload
+        - '{"Concat": ["{", "\"configuration\": {", "\"query\": ", "{{$.inputs.parameters[''job_configuration_query'']}}",
+          ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", "}", "}"]}'
+        - --job_configuration_query_override
+        - '{"Concat": ["{", "\"query\": \"", "{{$.inputs.parameters[''query'']}}",
+          "\"", ", \"query_parameters\": ", "{{$.inputs.parameters[''query_parameters'']}}",
+          ", \"destination_encryption_configuration\": {", "\"kmsKeyName\": \"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", "}"]}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.bigquery.query_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.22.0
+    exec-bigquery-query-job-2:
+      container:
+        args:
+        - --type
+        - BigqueryQueryJob
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --payload
+        - '{"Concat": ["{", "\"configuration\": {", "\"query\": ", "{{$.inputs.parameters[''job_configuration_query'']}}",
+          ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", "}", "}"]}'
+        - --job_configuration_query_override
+        - '{"Concat": ["{", "\"query\": \"", "{{$.inputs.parameters[''query'']}}",
+          "\"", ", \"query_parameters\": ", "{{$.inputs.parameters[''query_parameters'']}}",
+          ", \"destination_encryption_configuration\": {", "\"kmsKeyName\": \"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", "}"]}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.bigquery.query_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.22.0
+    exec-bigquery-query-job-3:
+      container:
+        args:
+        - --type
+        - BigqueryQueryJob
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --payload
+        - '{"Concat": ["{", "\"configuration\": {", "\"query\": ", "{{$.inputs.parameters[''job_configuration_query'']}}",
+          ", \"labels\": ", "{{$.inputs.parameters[''labels'']}}", "}", "}"]}'
+        - --job_configuration_query_override
+        - '{"Concat": ["{", "\"query\": \"", "{{$.inputs.parameters[''query'']}}",
+          "\"", ", \"query_parameters\": ", "{{$.inputs.parameters[''query_parameters'']}}",
+          ", \"destination_encryption_configuration\": {", "\"kmsKeyName\": \"", "{{$.inputs.parameters[''encryption_spec_key_name'']}}",
+          "\"}", "}"]}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        - --executor_input
+        - '{{$}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.bigquery.query_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.22.0
+    exec-deploy-cloud-run:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - deploy_cloud_run
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'google-cloud-run==0.10.11'\
+          \  &&  python3 -m pip install --quiet --no-warn-script-location 'kfp==2.17.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef deploy_cloud_run(project: str, region: str, service: str, image:\
+          \ str, model_uri: str,\n                     service_account: str, cpu:\
+          \ str, memory: str,\n                     min_instances: int, max_instances:\
+          \ int):\n    \"\"\"Create/update the Cloud Run scoring service via the Admin\
+          \ API (auth via the pipeline SA).\n\n    Uses run_v2 rather than shelling\
+          \ out to gcloud so it runs reliably as a KFP lightweight component.\n  \
+          \  Service is private by default (no allUsers IAM binding).\n    \"\"\"\n\
+          \    from google.cloud import run_v2\n    client = run_v2.ServicesClient()\n\
+          \    parent = f\"projects/{project}/locations/{region}\"\n    name = f\"\
+          {parent}/services/{service}\"\n    svc = run_v2.Service(template=run_v2.RevisionTemplate(\n\
+          \        service_account=service_account,\n        scaling=run_v2.RevisionScaling(min_instance_count=min_instances,\
+          \ max_instance_count=max_instances),\n        containers=[run_v2.Container(\n\
+          \            image=image,\n            env=[run_v2.EnvVar(name=\"MODEL_URI\"\
+          , value=model_uri)],\n            resources=run_v2.ResourceRequirements(limits={\"\
+          cpu\": cpu, \"memory\": memory}),\n            ports=[run_v2.ContainerPort(container_port=8080)],\n\
+          \        )],\n    ))\n    try:\n        client.get_service(name=name)\n\
+          \        svc.name = name\n        op = client.update_service(service=svc)\n\
+          \    except Exception:\n        op = client.create_service(parent=parent,\
+          \ service=svc, service_id=service)\n    print(\"deployed:\", op.result().uri)\n\
+          \n"
+        image: python:3.11-slim
+    exec-deploy-cloud-run-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - deploy_cloud_run
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'google-cloud-run==0.10.11'\
+          \  &&  python3 -m pip install --quiet --no-warn-script-location 'kfp==2.17.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef deploy_cloud_run(project: str, region: str, service: str, image:\
+          \ str, model_uri: str,\n                     service_account: str, cpu:\
+          \ str, memory: str,\n                     min_instances: int, max_instances:\
+          \ int):\n    \"\"\"Create/update the Cloud Run scoring service via the Admin\
+          \ API (auth via the pipeline SA).\n\n    Uses run_v2 rather than shelling\
+          \ out to gcloud so it runs reliably as a KFP lightweight component.\n  \
+          \  Service is private by default (no allUsers IAM binding).\n    \"\"\"\n\
+          \    from google.cloud import run_v2\n    client = run_v2.ServicesClient()\n\
+          \    parent = f\"projects/{project}/locations/{region}\"\n    name = f\"\
+          {parent}/services/{service}\"\n    svc = run_v2.Service(template=run_v2.RevisionTemplate(\n\
+          \        service_account=service_account,\n        scaling=run_v2.RevisionScaling(min_instance_count=min_instances,\
+          \ max_instance_count=max_instances),\n        containers=[run_v2.Container(\n\
+          \            image=image,\n            env=[run_v2.EnvVar(name=\"MODEL_URI\"\
+          , value=model_uri)],\n            resources=run_v2.ResourceRequirements(limits={\"\
+          cpu\": cpu, \"memory\": memory}),\n            ports=[run_v2.ContainerPort(container_port=8080)],\n\
+          \        )],\n    ))\n    try:\n        client.get_service(name=name)\n\
+          \        svc.name = name\n        op = client.update_service(service=svc)\n\
+          \    except Exception:\n        op = client.create_service(parent=parent,\
+          \ service=svc, service_id=service)\n    print(\"deployed:\", op.result().uri)\n\
+          \n"
+        image: python:3.11-slim
+    exec-read-metrics:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - read_metrics
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'google-cloud-storage==2.19.0'\
+          \  &&  python3 -m pip install --quiet --no-warn-script-location 'kfp==2.17.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef read_metrics(model_dir: str) -> NamedTuple(\"Out\", [(\"qwk\"\
+          , float), (\"mae\", float)]):\n    \"\"\"Read metrics.json the training\
+          \ job wrote to GCS; expose QWK for the gate.\"\"\"\n    import json\n  \
+          \  from collections import namedtuple\n    from google.cloud import storage\n\
+          \    bucket_name, prefix = model_dir[5:].split(\"/\", 1)\n    blob = storage.Client().bucket(bucket_name).blob(f\"\
+          {prefix.rstrip('/')}/metrics.json\")\n    metrics = json.loads(blob.download_as_text())\n\
+          \    print(\"metrics:\", metrics)\n    return namedtuple(\"Out\", [\"qwk\"\
+          , \"mae\"])(float(metrics[\"QWK\"]), float(metrics[\"MAE\"]))\n\n"
+        image: python:3.11-slim
+    exec-read-metrics-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - read_metrics
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'google-cloud-storage==2.19.0'\
+          \  &&  python3 -m pip install --quiet --no-warn-script-location 'kfp==2.17.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef read_metrics(model_dir: str) -> NamedTuple(\"Out\", [(\"qwk\"\
+          , float), (\"mae\", float)]):\n    \"\"\"Read metrics.json the training\
+          \ job wrote to GCS; expose QWK for the gate.\"\"\"\n    import json\n  \
+          \  from collections import namedtuple\n    from google.cloud import storage\n\
+          \    bucket_name, prefix = model_dir[5:].split(\"/\", 1)\n    blob = storage.Client().bucket(bucket_name).blob(f\"\
+          {prefix.rstrip('/')}/metrics.json\")\n    metrics = json.loads(blob.download_as_text())\n\
+          \    print(\"metrics:\", metrics)\n    return namedtuple(\"Out\", [\"qwk\"\
+          , \"mae\"])(float(metrics[\"QWK\"]), float(metrics[\"MAE\"]))\n\n"
+        image: python:3.11-slim
+    exec-train-container:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}",
+          "psc_interface_config": {{$.inputs.parameters[''psc_interface_config'']}}},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.22.0
+pipelineInfo:
+  name: yelp-ordinal-rating
+root:
+  dag:
+    tasks:
+      condition-branches-1:
+        componentRef:
+          name: comp-condition-branches-1
+        inputs:
+          parameters:
+            pipelinechannel--model_dir:
+              componentInputParameter: model_dir
+            pipelinechannel--qwk_gate:
+              componentInputParameter: qwk_gate
+            pipelinechannel--train_model:
+              componentInputParameter: train_model
+        taskInfo:
+          name: condition-branches-1
+  inputDefinitions:
+    parameters:
+      model_dir:
+        defaultValue: gs://yelp-review-rating-prediction-mlops/models/manual
+        isOptional: true
+        parameterType: STRING
+      qwk_gate:
+        defaultValue: 0.8
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      train_model:
+        defaultValue: true
+        isOptional: true
+        parameterType: BOOLEAN
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.17.0

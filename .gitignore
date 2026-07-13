@@ -1,0 +1,25 @@
+# Python / env
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Raw + derived Yelp data — academic-use licence, do NOT redistribute
+Yelp JSON/
+Yelp Photos/
+data/
+# smoke-test fixtures (derived review text); regenerate via smoketest/make_sample.py
+serving/smoketest/sample_*.json
+
+# Model artifacts, charts, logs, credentials
+outputs/
+*.log
+*-key.json
+*.pem
+
+#
+docs/
+
+# jupytext-paired .py mirrors of the notebooks — the .ipynb are the tracked source
+notebooks/*.py

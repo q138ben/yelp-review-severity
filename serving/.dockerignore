@@ -1,0 +1,6 @@
+# Same intent as .gcloudignore, for local `docker build .`: only the deployable
+# files enter the build context.
+*
+!Dockerfile
+!app.py
+!cloudbuild.yaml

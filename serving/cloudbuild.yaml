@@ -1,0 +1,9 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', 'serving/Dockerfile', '-t', '${_IMAGE}', '.']  # context = repo root (ships src/)
+images: ['${_IMAGE}']
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+substitutions:
+  _IMAGE: europe-north1-docker.pkg.dev/yelp-review-rating-prediction/yelp-mlops/serve:latest

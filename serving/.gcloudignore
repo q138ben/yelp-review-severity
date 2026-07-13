@@ -1,0 +1,7 @@
+# Uploaded build context for `gcloud builds submit` should contain only the
+# deployable unit. Exclude everything, then re-include the three files the
+# Dockerfile needs. Keeps dev tooling + test fixtures (smoketest/) out of the build.
+*
+!Dockerfile
+!app.py
+!cloudbuild.yaml

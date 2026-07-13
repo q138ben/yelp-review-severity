@@ -1,0 +1,26 @@
+# Both the training and serving images build from the repo ROOT (cloudbuild.yaml uses `-f <dir>/Dockerfile .`)
+# so they can COPY the shared src/. Keep the upload tiny: the images only need src/ + training/ + serving/,
+# so exclude everything else — especially the multi-GB raw data.
+.git/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# raw + derived data (never needed in a build)
+Yelp JSON/
+Yelp Photos/
+data/
+outputs/
+
+# everything unrelated to the container images (src/, training/, serving/ are kept)
+notebooks/
+docs/
+pipelines/
+infra/
+tests/
+*.md
+*.log
+*-key.json
+*.pem

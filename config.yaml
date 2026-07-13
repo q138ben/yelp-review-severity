@@ -1,0 +1,32 @@
+# Central config for the Yelp ordinal-rating MLOps system. Read by the pipeline + submit + serving.
+project: yelp-review-rating-prediction
+region: europe-north1
+bq_location: europe-north1
+bucket: gs://yelp-review-rating-prediction-mlops
+artifact_registry: europe-north1-docker.pkg.dev/yelp-review-rating-prediction/yelp-mlops
+service_account: yelp-mlops@yelp-review-rating-prediction.iam.gserviceaccount.com  # pipeline RUNTIME identity (keyless)
+
+datasets:
+  bronze: bronze
+  silver: silver
+  gold: gold
+
+model:
+  base_encoder: distilbert-base-uncased-finetuned-sst-2-english
+  max_seq_len: 160
+  train_rows: 20000          # cap the fine-tune sample (cost/time control)
+  epochs: 100                # MAX epochs; early stopping (patience below) halts at the val-QWK plateau
+  patience: 5               # early-stop after this many epochs with no val-QWK gain
+  max_grad_norm: 1.0        # gradient clipping threshold (guards exploding grads from the fresh head)
+  batch_size: 32
+  lr: 0.00002
+
+evaluation:
+  qwk_gate: 0.80             # register + deploy only if test QWK >= this
+
+serving:
+  service_name: yelp-rating-api
+  cpu: "2"
+  memory: 4Gi
+  min_instances: 0          # scale to zero (near-zero idle cost)
+  max_instances: 3

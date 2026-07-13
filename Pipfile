@@ -1,0 +1,39 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+pandas = "*"
+scikit-learn = "*"
+scipy = "*"
+pyarrow = "*"
+matplotlib = "*"
+duckdb = "*"
+plotly = "*"
+kaleido = "*"
+ipykernel = "*"
+nbconvert = "*"
+nbformat = "*"
+jupytext = "*"
+vadersentiment = "*"
+langdetect = "*"
+torch = "*"
+transformers = "*"
+accelerate = "*"
+spacy = "*"
+bertopic = "*"
+anthropic = "*"
+kfp = "*"
+google-cloud-aiplatform = "*"
+google-cloud-pipeline-components = "*"
+google-cloud-bigquery = "*"
+google-cloud-storage = "*"
+google-cloud-run = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
+python_full_version = "3.12.8"

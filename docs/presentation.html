@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review → Severity — case study deck</title>
+
+<style>
+  /* ============================== tokens ============================== */
+  :root{
+    --paper:#edeef0; --field:#e4e6ea; --panel:#f8f9fb; --panel-2:#eef0f3;
+    --ink:#14161a; --ink-2:#474d56; --muted:#5f6772; --line:#d5d9df; --line-2:#c3c8d0;
+    --accent:#2563d6; --accent-soft:#2563d61a; --accent-ink:#1c4fb0;
+    --good-soft:#1f9d7615;
+    --sev1:#d33f34; --sev2:#e0843a; --sev3:#cba63a; --sev4:#5aa06a; --sev5:#1f9d76;
+    --good:#1f9d76; --warn:#e0843a; --crit:#d33f34;
+    --shadow:0 1px 2px #14161a10, 0 8px 30px #14161a12;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --maxw:1160px;
+    --fs-eyebrow:.72rem; --fs-body:1.06rem;
+    --fs-lead:clamp(1.12rem,1.7vw,1.45rem);
+    --fs-h2:clamp(1.85rem,4vw,3.15rem);
+    --fs-metric:clamp(1.9rem,4.2vw,3.2rem);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0e1116; --field:#0b0e12; --panel:#161b22; --panel-2:#1b212b;
+      --ink:#edf1f6; --ink-2:#aab3bf; --muted:#8a95a3; --line:#242b35; --line-2:#2e3742;
+      --accent:#4f8bff; --accent-soft:#4f8bff1f; --accent-ink:#8fb4ff;
+      --good-soft:#2bbd901f;
+      --sev1:#f0594c; --sev2:#f0994b; --sev3:#e3c24f; --sev4:#68bd7e; --sev5:#2bbd90;
+      --good:#2bbd90; --warn:#f0994b; --crit:#f0594c;
+      --shadow:0 1px 2px #0006, 0 10px 34px #0007;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#edeef0; --field:#e4e6ea; --panel:#f8f9fb; --panel-2:#eef0f3;
+    --ink:#14161a; --ink-2:#474d56; --muted:#5f6772; --line:#d5d9df; --line-2:#c3c8d0;
+    --accent:#2563d6; --accent-soft:#2563d61a; --accent-ink:#1c4fb0; --good-soft:#1f9d7615;
+    --sev1:#d33f34; --sev2:#e0843a; --sev3:#cba63a; --sev4:#5aa06a; --sev5:#1f9d76;
+    --good:#1f9d76; --warn:#e0843a; --crit:#d33f34; --shadow:0 1px 2px #14161a10,0 8px 30px #14161a12;
+  }
+  :root[data-theme="dark"]{
+    --paper:#0e1116; --field:#0b0e12; --panel:#161b22; --panel-2:#1b212b;
+    --ink:#edf1f6; --ink-2:#aab3bf; --muted:#8a95a3; --line:#242b35; --line-2:#2e3742;
+    --accent:#4f8bff; --accent-soft:#4f8bff1f; --accent-ink:#8fb4ff; --good-soft:#2bbd901f;
+    --sev1:#f0594c; --sev2:#f0994b; --sev3:#e3c24f; --sev4:#68bd7e; --sev5:#2bbd90;
+    --good:#2bbd90; --warn:#f0994b; --crit:#f0594c; --shadow:0 1px 2px #0006,0 10px 34px #0007;
+  }
+
+  *{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--field); color:var(--ink); font-family:var(--sans);
+        font-size:var(--fs-body); line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1,h2,h3,p{margin:0}
+  ::selection{ background:var(--accent-soft); }
+
+  /* ============================== deck shell ============================== */
+  .deck{ height:100vh; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y proximity; scroll-behavior:smooth; }
+  @media (prefers-reduced-motion:reduce){ .deck{ scroll-behavior:auto; } }
+
+  .slide{ min-height:100vh; scroll-snap-align:start; display:flex; align-items:center;
+          padding:80px clamp(20px,5vw,72px) 92px; position:relative; }
+  .inner{ width:100%; max-width:var(--maxw); margin:0 auto; }
+
+  .slide:nth-child(even){ background:var(--paper); }
+  .slide:nth-child(odd){ background:var(--field); }
+  .slide--hero{ background:
+      radial-gradient(120% 90% at 88% -10%, var(--accent-soft), transparent 60%),
+      linear-gradient(180deg, var(--paper), var(--field)); }
+
+  /* ============================== rail + nav ============================== */
+  .rail{ position:fixed; top:0; left:0; right:0; height:4px; z-index:40;
+         background:linear-gradient(90deg,var(--sev1),var(--sev2),var(--sev3),var(--sev4),var(--sev5));
+         opacity:.28; }
+  .rail__fill{ position:fixed; top:0; left:0; height:4px; z-index:41; width:0;
+         background:linear-gradient(90deg,var(--sev1),var(--sev2),var(--sev3),var(--sev4),var(--sev5)); }
+  .hud{ position:fixed; top:12px; right:clamp(16px,4vw,40px); z-index:42; max-width:calc(100vw - 32px);
+        font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; color:var(--muted);
+        display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px 14px; align-items:center; }
+  .hud b{ color:var(--ink); font-weight:600; }
+  .hud__sec{ color:var(--accent-ink); }
+  .themebtn{ font:inherit; color:var(--muted); background:var(--panel); border:1px solid var(--line-2);
+        border-radius:999px; padding:3px 9px; cursor:pointer; letter-spacing:.06em; }
+  .themebtn:hover{ color:var(--ink); border-color:var(--muted); }
+  @media (max-width:600px){ .hud__sec{ display:none; } }
+
+  .dots{ position:fixed; right:clamp(10px,2.4vw,22px); top:50%; transform:translateY(-50%);
+         z-index:42; display:flex; flex-direction:column; gap:9px; }
+  .dots button{ width:9px; height:9px; padding:0; border-radius:50%; cursor:pointer;
+         border:1.5px solid var(--line-2); background:transparent; transition:all .2s; }
+  .dots button:hover{ border-color:var(--accent); transform:scale(1.25); }
+  .dots button[aria-current="true"]{ background:var(--accent); border-color:var(--accent);
+         box-shadow:0 0 0 4px var(--accent-soft); }
+  @media (max-width:820px){ .dots{ display:none; } }
+
+  :focus-visible{ outline:2.5px solid var(--accent); outline-offset:3px; border-radius:3px; }
+
+  /* ============================== reveal (JS-gated so no-JS still shows) ============================== */
+  .js .inner > *{ opacity:0; transform:translateY(14px); }
+  .js .slide.in .inner > *{ opacity:1; transform:none; transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.3,1); }
+  .js .slide.in .inner > :nth-child(2){ transition-delay:.06s }
+  .js .slide.in .inner > :nth-child(3){ transition-delay:.12s }
+  .js .slide.in .inner > :nth-child(4){ transition-delay:.18s }
+  .js .slide.in .inner > :nth-child(5){ transition-delay:.24s }
+  .js .slide.in .inner > :nth-child(6){ transition-delay:.30s }
+  @media (prefers-reduced-motion:reduce){
+    .js .inner > *{ opacity:1; transform:none; }
+    .js .slide.in .inner > *{ transition:none; }
+  }
+
+  /* ============================== type helpers ============================== */
+  .eyebrow{ font-family:var(--mono); font-size:var(--fs-eyebrow); letter-spacing:.16em;
+            text-transform:uppercase; color:var(--accent-ink); display:flex; align-items:center; gap:10px; }
+  .eyebrow::before{ content:""; width:26px; height:2px; background:var(--accent); display:inline-block; }
+  .kicker{ font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  h2.title{ font-size:var(--fs-h2); font-weight:800; letter-spacing:-.02em; line-height:1.04;
+            text-wrap:balance; margin:.5rem 0 0; max-width:20ch; }
+  .lead{ font-size:var(--fs-lead); color:var(--ink-2); max-width:60ch; line-height:1.45; }
+  .body{ color:var(--ink-2); max-width:64ch; }
+  .accent{ color:var(--accent-ink); }
+  .stack{ display:flex; flex-direction:column; gap:22px; }
+  .stack-sm{ display:flex; flex-direction:column; gap:12px; }
+  strong{ color:var(--ink); font-weight:600; }
+  .num{ font-family:var(--mono); font-variant-numeric:tabular-nums; }
+
+  /* ============================== hero ============================== */
+  .hero__title{ font-size:clamp(2.6rem,7.2vw,5.6rem); font-weight:800; letter-spacing:-.035em;
+                line-height:.98; text-wrap:balance; margin:.3rem 0 0; }
+  .hero__sub{ font-size:var(--fs-lead); color:var(--ink-2); max-width:56ch; margin-top:1.3rem; line-height:1.45; }
+  .metaline{ font-family:var(--mono); font-size:.76rem; letter-spacing:.04em; color:var(--muted);
+             margin-top:2rem; display:flex; flex-wrap:wrap; gap:8px 16px; }
+  .metaline b{ color:var(--ink); font-weight:600; }
+  .metaline span{ white-space:nowrap; }
+
+  /* severity spectrum device */
+  .spectrum{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:2.4rem; max-width:640px; }
+  .spectrum .seg{ height:12px; border-radius:3px; }
+  .spectrum--tall .seg{ height:16px; }
+  .spectrum .lbl{ font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; color:var(--muted);
+                  margin-top:8px; display:flex; justify-content:space-between; grid-column:1/-1; }
+
+  /* ============================== cards / grids ============================== */
+  .grid{ display:grid; gap:16px; margin-top:1.6rem; }
+  .g-2{ grid-template-columns:repeat(2,1fr); }
+  .g-3{ grid-template-columns:repeat(3,1fr); }
+  @media (max-width:820px){ .g-2,.g-3{ grid-template-columns:1fr; } }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:12px;
+         padding:20px 20px 18px; box-shadow:var(--shadow); }
+  .card h3{ font-size:1.02rem; font-weight:700; letter-spacing:-.01em; margin-bottom:6px; display:flex; align-items:center; gap:9px; }
+  .card p{ color:var(--ink-2); font-size:.96rem; }
+  .card .tag{ font-family:var(--mono); font-size:.68rem; letter-spacing:.09em; text-transform:uppercase;
+              color:var(--muted); display:block; margin-bottom:9px; }
+  .card--sev{ border-left:3px solid var(--sev1); }
+  .dotmark{ width:9px; height:9px; border-radius:50%; flex:none; }
+
+  /* stat blocks */
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:2px;
+          border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top:1.4rem; background:var(--line); }
+  .stat{ background:var(--panel); padding:16px 18px; }
+  .stat .v{ font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:var(--fs-metric);
+            font-weight:600; letter-spacing:-.02em; line-height:1; color:var(--ink); }
+  .stat .v.hl{ color:var(--accent); }
+  .stat .k{ font-family:var(--mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase;
+            color:var(--muted); margin-top:8px; }
+
+  /* two-column split */
+  .split{ display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(24px,4vw,56px); align-items:center; }
+  .split--wide{ grid-template-columns:1fr 1.15fr; }
+  @media (max-width:900px){ .split, .split--wide{ grid-template-columns:1fr; } }
+  .split .scroll table{ min-width:340px; }
+
+  /* ============================== bar chart (J-shape) ============================== */
+  .chart{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:var(--shadow); }
+  .chart .ctitle{ font-family:var(--mono); font-size:.7rem; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .jbars{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; align-items:end; height:210px; }
+  .jbar{ display:flex; flex-direction:column; justify-content:flex-end; align-items:center; height:100%; gap:8px; }
+  .jbar .bar{ width:100%; border-radius:5px 5px 0 0; min-height:6px; }
+  .jbar .pv{ font-family:var(--mono); font-variant-numeric:tabular-nums; font-weight:600; font-size:.9rem; }
+  .jbar .st{ font-family:var(--mono); font-size:.74rem; color:var(--muted); }
+
+  /* horizontal driver bars — value sits OUTSIDE the fill (always legible) */
+  .hbars{ display:flex; flex-direction:column; gap:14px; margin-top:2px; }
+  .hbar{ display:grid; grid-template-columns:88px 1fr auto; gap:12px; align-items:center; }
+  .hbar .name{ font-family:var(--mono); font-size:.8rem; color:var(--ink); text-align:right; }
+  .hbar .track{ background:var(--panel-2); border-radius:6px; height:22px; overflow:hidden; }
+  .hbar .fill{ height:100%; border-radius:6px; }
+  .hbar .meta{ font-family:var(--mono); font-size:.78rem; color:var(--ink); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .hbar .meta small{ color:var(--muted); }
+
+  /* coverage mini-bars */
+  .cov{ display:grid; grid-template-columns:auto 1fr auto; gap:7px 10px; align-items:center; margin-top:4px; }
+  .cov .cn{ font-family:var(--mono); font-size:.72rem; color:var(--ink-2); text-align:right; }
+  .cov .ct{ background:var(--panel-2); border-radius:4px; height:9px; overflow:hidden; }
+  .cov .cf{ height:100%; background:var(--accent); border-radius:4px; }
+  .cov .cp{ font-family:var(--mono); font-size:.7rem; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  /* ============================== table ============================== */
+  .scroll{ overflow-x:auto; margin-top:1.4rem; border-radius:12px; border:1px solid var(--line); }
+  table{ border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); min-width:520px; }
+  caption{ text-align:left; font-family:var(--mono); font-size:.7rem; letter-spacing:.07em; text-transform:uppercase;
+           color:var(--muted); padding:14px 16px 0; }
+  th,td{ padding:10px 15px; text-align:right; border-bottom:1px solid var(--line); }
+  th:first-child,td:first-child{ text-align:left; }
+  thead th{ font-family:var(--mono); font-size:.68rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:500; }
+  tbody td{ font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink-2); }
+  tbody td:first-child{ font-family:var(--sans); color:var(--ink); }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr.win td{ color:var(--good); }
+  tbody tr.win td:first-child{ color:var(--good); font-weight:600; }
+  tr.hot td{ color:var(--crit); }
+  tr.hot td:first-child{ color:var(--crit); font-weight:600; }
+
+  /* ============================== pipeline diagram ============================== */
+  .flow{ display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin-top:1.6rem; }
+  .node{ background:var(--panel); border:1px solid var(--line); border-radius:11px; padding:14px 16px;
+         flex:1 1 150px; min-width:140px; box-shadow:var(--shadow); position:relative; }
+  .node .nk{ font-family:var(--mono); font-size:.66rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
+  .node .nt{ font-weight:700; font-size:.98rem; margin-top:5px; letter-spacing:-.01em; }
+  .node .nd{ font-size:.82rem; color:var(--ink-2); margin-top:5px; line-height:1.4; }
+  .node--gate{ border:1.5px dashed var(--accent); background:var(--accent-soft); }
+  .node--gate .nk{ color:var(--accent-ink); }
+  .node--serve{ border-left:3px solid var(--good); }
+  .arrow{ align-self:center; color:var(--line-2); font-family:var(--mono); font-size:1.1rem; flex:none; }
+  @media (max-width:760px){ .flow{ flex-direction:column; } .arrow{ transform:rotate(90deg); align-self:flex-start; margin-left:24px; } }
+
+  .infobar{ display:flex; flex-wrap:wrap; gap:8px 14px; margin-top:1.5rem; font-family:var(--mono);
+            font-size:.74rem; letter-spacing:.03em; color:var(--muted); }
+  .infobar b{ color:var(--ink); font-weight:600; }
+  .infobar .pill{ border:1px solid var(--line-2); border-radius:999px; padding:4px 12px; color:var(--ink-2); }
+
+  /* code block */
+  pre{ margin:0; font-family:var(--mono); font-size:.82rem; line-height:1.6; color:var(--ink-2);
+       background:var(--panel); padding:18px 20px; white-space:pre; }
+  pre b{ color:var(--accent-ink); font-weight:600; }
+  pre .c{ color:var(--muted); }
+  pre .g{ color:var(--good); }
+
+  ul.ticks{ list-style:none; padding:0; margin:1.2rem 0 0; display:flex; flex-direction:column; gap:12px; }
+  ul.ticks li{ padding-left:26px; position:relative; color:var(--ink-2); max-width:62ch; }
+  ul.ticks li::before{ content:"›"; position:absolute; left:6px; top:-1px; color:var(--accent); font-family:var(--mono); font-weight:700; }
+  ul.ticks li strong{ color:var(--ink); }
+
+  .callout{ border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0;
+            padding:14px 18px; margin-top:1.5rem; color:var(--ink-2); font-size:.98rem; max-width:72ch; }
+  .callout b{ color:var(--ink); }
+  .callout ul{ margin:0; padding-left:18px; display:flex; flex-direction:column; gap:5px; }
+
+  .provenance{ font-family:var(--mono); font-size:.72rem; line-height:1.5; letter-spacing:.02em; color:var(--muted);
+               margin-top:12px; border-left:2px solid var(--line-2); padding-left:12px; max-width:80ch; }
+  .provenance b{ color:var(--ink-2); font-weight:600; }
+
+  .slidenum{ position:absolute; left:clamp(20px,5vw,72px); bottom:34px; font-family:var(--mono);
+             font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+
+  .hint{ position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:42;
+         font-family:var(--mono); font-size:.68rem; letter-spacing:.06em; color:var(--muted);
+         background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:5px 14px; box-shadow:var(--shadow); }
+  .hint.hide{ opacity:0; transition:opacity .6s; pointer-events:none; }
+
+  /* ============================== print ============================== */
+  @media print{
+    .rail,.rail__fill,.hud,.dots,.hint,.slidenum{ display:none !important; }
+    .deck{ height:auto; overflow:visible; }
+    .slide{ min-height:auto; page-break-after:always; break-after:page; padding:40px; }
+    .inner > *{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="rail" aria-hidden="true"></div>
+<div class="rail__fill" id="railfill" aria-hidden="true"></div>
+<div class="hud">
+  <span class="hud__sec" id="hudsec" aria-hidden="true">TITLE</span>
+  <span aria-hidden="true"><b id="hudnum">01</b> / <span id="hudtot">13</span></span>
+  <button class="themebtn" id="themebtn" type="button" aria-label="Toggle light or dark theme">◑ theme</button>
+</div>
+<nav class="dots" id="dots" aria-label="Slide navigation"></nav>
+
+<main class="deck" id="deck" tabindex="0" aria-label="Presentation. Use arrow keys to navigate.">
+
+  <!-- 0 · HERO -->
+  <section class="slide slide--hero" data-sec="">
+    <div class="inner">
+      <p class="eyebrow">Case study · Data science · 2026</p>
+      <h1 class="hero__title">The review is<br>the incident report.</h1>
+      <p class="hero__sub">Score any piece of free-text feedback on a calibrated <strong>1–5 severity</strong> scale — and break it into the <strong>aspects that caused it</strong> — so an operations team can triage the worst feedback fast and know which lever to pull.</p>
+      <div class="spectrum spectrum--tall" aria-hidden="true">
+        <div class="seg" style="background:var(--sev1)"></div>
+        <div class="seg" style="background:var(--sev2)"></div>
+        <div class="seg" style="background:var(--sev3)"></div>
+        <div class="seg" style="background:var(--sev4)"></div>
+        <div class="seg" style="background:var(--sev5)"></div>
+        <div class="lbl"><span>1★ · crisis</span><span>3★ · ambiguous</span><span>5★ · healthy</span></div>
+      </div>
+      <div class="metaline">
+        <span><b>Yelp Open Dataset</b> · 6.99M reviews</span>
+        <span><b>DistilBERT</b> ordinal encoder</span>
+        <span><b>Vertex AI</b> pipeline → <b>Cloud Run</b></span>
+        <span>3 notebooks + a governed production system</span>
+      </div>
+    </div>
+    <div class="slidenum"></div>
+  </section>
+
+  <!-- 1 · THE PAIN -->
+  <section class="slide" data-sec="Problem">
+    <div class="inner">
+      <p class="eyebrow">The stakeholder & the pain</p>
+      <h2 class="title">Priya can't read 10,000 reviews a week.</h2>
+      <p class="lead">VP of Operations, a ~300-location casual-dining group. Thousands of feedback items land weekly — Yelp/Google, in-app, comment cards, support tickets, social. Three problems:</p>
+      <div class="grid g-3">
+        <div class="card"><span class="tag">volume</span><h3>Nobody reads it all</h3><p>The signal that a location is going bad arrives late — or never.</p></div>
+        <div class="card"><span class="tag">lagging</span><h3>Stars trail reality</h3><p>By the time the public average visibly drops, the lost customers are already gone. Most channels carry no star at all.</p></div>
+        <div class="card"><span class="tag">no "why"</span><h3>Which lever is failing?</h3><p>A bad rating doesn't say whether #217 is slow service, cold food, or a dirty room — three different fixes.</p></div>
+      </div>
+      <div class="callout"><b>Jobs to be done:</b> &nbsp;triage (route the worst to the right manager in minutes) &nbsp;·&nbsp; diagnose (which aspect, per location) &nbsp;·&nbsp; early-warn (catch the slide before the public average tanks). Rating is causally tied to revenue — this is retention, not reporting.</div>
+    </div>
+    <div class="slidenum">The pain</div>
+  </section>
+
+  <!-- 2 · WHY A MODEL -->
+  <section class="slide" data-sec="Framing">
+    <div class="inner">
+      <p class="eyebrow">Why this is a modelling problem</p>
+      <h2 class="title">Not "read the stars" — impute severity from text.</h2>
+      <div class="grid g-3">
+        <div class="card card--sev" style="border-left-color:var(--accent)">
+          <span class="tag">star-less channels</span>
+          <h3><span class="num">~13%</span> carry no rating</h3>
+          <p>Tips (<span class="num">908,915</span>) + photo captions (~97k) ≈ <strong>1M items</strong> with no star. Every channel an operator adds grows the gap. Value = a consistent severity signal from <strong>text alone</strong>.</p>
+        </div>
+        <div class="card card--sev" style="border-left-color:var(--sev3)">
+          <span class="tag">the mixed middle</span>
+          <h3>A lexicon collapses</h3>
+          <p>Word-level polarity sums to mush on "<em>great food <strong>but</strong> an hour wait</em>" — exactly where judgement is needed. The rating is <strong>ordered</strong>, not categorical.</p>
+        </div>
+        <div class="card card--sev">
+          <span class="tag">asymmetric cost</span>
+          <h3>1★-as-5★ ≫ 3★-as-2★</h3>
+          <p>Frame as <strong>ordinal regression</strong>; judge on rank-agreement (QWK, Spearman) that penalises <em>far</em> misses. Accuracy would reward "always 5★" — the corpus is <span class="num">46%</span> 5★.</p>
+        </div>
+      </div>
+      <p class="body" style="margin-top:1.6rem">Everything downstream is built to make the narrative <strong class="accent">actionable</strong> — score it, decompose it, and flag when the model itself is unsure.</p>
+    </div>
+    <div class="slidenum">Framing</div>
+  </section>
+
+  <!-- 3 · OVERVIEW -->
+  <section class="slide" data-sec="The build">
+    <div class="inner">
+      <p class="eyebrow">The build, mapped to her three jobs</p>
+      <h2 class="title">One encoder. Three jobs.</h2>
+      <div class="grid g-3">
+        <div class="card"><span class="tag">triage · who to call first</span><h3><span class="dotmark" style="background:var(--sev1)"></span>Ordinal encoder</h3><p>Fine-tuned DistilBERT → calibrated 1–5 severity from text. <strong>QWK 0.879</strong> on 20,179 held-out reviews.</p></div>
+        <div class="card"><span class="tag">diagnose · which lever</span><h3><span class="dotmark" style="background:var(--sev3)"></span>Same encoder, decomposed</h3><p>Route clauses to aspects, score each with the <strong>same</strong> encoder → per-aspect 1–5 + the drivers.</p></div>
+        <div class="card"><span class="tag">qa · is this off?</span><h3><span class="dotmark" style="background:var(--accent)"></span>Disagreement flag</h3><p>Where the model strongly disagrees with the given star → mixed / mislabelled cases for a human.</p></div>
+      </div>
+      <div class="callout"><b>One model, two views.</b> The encoder scores the whole review (best QWK — use it to <em>rank</em>); the <em>same</em> encoder, run per aspect, decomposes that score (use it to <em>act</em>). The breakdown is a faithful decomposition of the ranking score — <strong>not a second model</strong>.</div>
+      <p class="kicker" style="margin-top:1.5rem">Notebook path &nbsp;→&nbsp; 01 EDA &nbsp;·&nbsp; 02 ordinal model &nbsp;·&nbsp; 03 aspect decomposition &nbsp;→&nbsp; production system</p>
+    </div>
+    <div class="slidenum">Overview</div>
+  </section>
+
+  <!-- 4 · NB01 EDA · label & corpus -->
+  <section class="slide" data-sec="Notebook 01 · EDA">
+    <div class="inner">
+      <p class="eyebrow">Notebook 01 · EDA — the label & the corpus</p>
+      <h2 class="title">Whole-dataset EDA — all 6.99M reviews, no sampling.</h2>
+      <div class="split split--wide">
+        <div class="stack-sm">
+          <p class="body"><strong>Engine:</strong> 5&nbsp;GB raw JSON → a <strong>270&nbsp;MB compact parquet</strong> (drop the raw text; keep <span class="num">text_len</span>, <span class="num">word_count</span>, <span class="num">text_hash</span>) → plain pandas over the <em>entire</em> corpus. Every chart below is exact, not a sample.</p>
+          <ul class="ticks">
+            <li><strong>Food-service = 43% of businesses but 73% of reviews</strong> → the aspect taxonomy should be restaurant-scoped.</li>
+            <li><strong>57% of users wrote one review</strong>; reviews & users are long-tailed → keep the model <strong>text-first</strong>, not user-metadata-reliant.</li>
+            <li><strong>Lower ratings run longer</strong> — 5★ ~332 chars vs 1–2★ ~510–543 → length is signal, but the model must use <em>content</em>.</li>
+          </ul>
+        </div>
+        <div class="chart">
+          <div class="ctitle">Star ratings — J-shaped (share of all 6.99M reviews)</div>
+          <div class="jbars">
+            <div class="jbar"><div class="pv">15.3%</div><div class="bar" style="height:33%;background:var(--sev1)"></div><div class="st">1★</div></div>
+            <div class="jbar"><div class="pv">7.8%</div><div class="bar" style="height:17%;background:var(--sev2)"></div><div class="st">2★</div></div>
+            <div class="jbar"><div class="pv">9.9%</div><div class="bar" style="height:21%;background:var(--sev3)"></div><div class="st">3★</div></div>
+            <div class="jbar"><div class="pv">20.8%</div><div class="bar" style="height:45%;background:var(--sev4)"></div><div class="st">4★</div></div>
+            <div class="jbar"><div class="pv">46.2%</div><div class="bar" style="height:100%;background:var(--sev5)"></div><div class="st">5★</div></div>
+          </div>
+          <p class="kicker" style="margin-top:14px">1★ (15%) outnumbers 3★ (10%) — imbalance → macro-F1 + ordinal loss; the 2–3★ middle is the hard zone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slidenum">EDA · corpus</div>
+  </section>
+
+  <!-- 5 · NB01 EDA · data quality & split -->
+  <section class="slide" data-sec="Notebook 01 · EDA">
+    <div class="inner">
+      <p class="eyebrow">Notebook 01 · EDA — data quality & the split</p>
+      <h2 class="title">Trust the data, then build a leakage-safe wall.</h2>
+      <div class="grid g-3">
+        <div class="card"><span class="tag">scope</span><h3><span class="num">99.9%</span> English</h3><p>langdetect on a 30k random sample → scope the encoder + tokenizer to English; the rest is negligible and out of scope.</p></div>
+        <div class="card"><span class="tag">integrity</span><h3>Keys pristine</h3><p><span class="num">0</span> duplicate review / business IDs. Duplicate <em>content</em> is tiny — ~0.18% dup reviews, ~0.09% dup listings → no dedup pass needed.</p></div>
+        <div class="card"><span class="tag">completeness</span><h3>Reviews near-complete</h3><p>Business-side <span class="num">hours</span>/<span class="num">attributes</span> are ~9–15% gappy; <span class="num">categories</span> (0.07% missing) is safe to scope aspects on.</p></div>
+      </div>
+      <div class="callout" style="border-left-color:var(--sev5);background:var(--good-soft)">
+        <b>Leakage-safe split — by business, not by row.</b>
+        <ul>
+          <li>Each business is hashed deterministically to <span class="num">train / val / test (70 / 15 / 15)</span> — every review of a location stays on one side of the wall.</li>
+          <li>Verified: <strong>0 businesses span splits</strong>, and the three stay representative on both stars <em>and</em> length.</li>
+          <li>Near-oracle features — a user's or a business's historical average star (≈0.5 correlation with the row's own rating) — are <strong>excluded from the model's features</strong>: triage must work on new text at new locations, not memorise a history.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="slidenum">EDA · split</div>
+  </section>
+
+  <!-- 6 · NB02 ordinal · approach + training -->
+  <section class="slide" data-sec="Notebook 02 · Ordinal model">
+    <div class="inner">
+      <p class="eyebrow">Notebook 02 · Ordinal model — approach & robust training</p>
+      <h2 class="title">Stars are ordered — so is the loss, and so is the metric.</h2>
+      <div class="split">
+        <div class="stack-sm">
+          <p class="kicker">Model ladder — all on the same leakage-safe test split</p>
+          <ul class="ticks">
+            <li><strong>Trivial</strong> — predict the training mean (a floor).</li>
+            <li><strong>TF-IDF + Ridge</strong> — a strong classical text baseline.</li>
+            <li><strong>DistilBERT-SST2 + regression head</strong> — a sentiment-pretrained encoder, single output, MSE on the float star.</li>
+          </ul>
+          <p class="body" style="margin-top:6px">Metrics = MAE/RMSE <em>plus</em> rank-agreement (Spearman, QWK). Two reviewers give 2★ for opposite reasons — absolute error alone hides whether the model preserves the <strong>ordering</strong> of severity.</p>
+        </div>
+        <div class="card">
+          <span class="tag">robust fine-tuning — not a fixed 2-epoch pass</span>
+          <ul class="ticks" style="margin-top:2px">
+            <li><strong>Gradient clipping</strong> (max-norm 1.0) — a fresh head on a pretrained trunk spikes gradients.</li>
+            <li><strong>Per-epoch monitoring</strong> — train/val loss, val QWK, grad-norm logged every epoch.</li>
+            <li><strong>Early stop + best-epoch restore</strong> — up to 100 epochs; predict with the <em>best</em> weights, not the last.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout"><b>What the run showed:</b> the fresh head <strong class="accent">exploded the gradient in epoch 1</strong> (pre-clip norm ≈ 120, loss ≈ 5.4) — clipping absorbed it. Train loss then fell to ~0.06 while val loss stalled and the train/val gap widened — overfitting. Early stopping restored the best epoch (<strong>8, by val QWK</strong>); the last epoch trailed the peak by ≈ 0.002 QWK, so best-epoch restore takes the peak for free.</div>
+    </div>
+    <div class="slidenum">Ordinal · training</div>
+  </section>
+
+  <!-- 7 · NB02 ordinal · results -->
+  <section class="slide" data-sec="Notebook 02 · Ordinal model">
+    <div class="inner">
+      <p class="eyebrow">Notebook 02 · Ordinal model — results & honesty</p>
+      <h2 class="title">Reliable enough to route on — honest about where it isn't.</h2>
+      <div class="stats">
+        <div class="stat"><div class="v">0.432</div><div class="k">MAE ↓</div></div>
+        <div class="stat"><div class="v">0.677</div><div class="k">RMSE ↓</div></div>
+        <div class="stat"><div class="v">0.828</div><div class="k">Spearman ↑</div></div>
+        <div class="stat"><div class="v hl">0.879</div><div class="k">QWK ↑ · the one that matters</div></div>
+        <div class="stat"><div class="v">0.660</div><div class="k">Accuracy</div></div>
+      </div>
+      <p class="provenance"><b>Headline</b> = the deployed model on the full cloud test (n = 20,179), which passed the QWK gate. The diagnostics below are the notebook's <b>local dev run</b> (6k-sample fit, n = 19,950) — it reproduces the deployed result (QWK 0.875) and lets us dissect per-class and per-length behaviour.</p>
+      <div class="split" style="margin-top:1.3rem;align-items:start">
+        <div class="scroll" style="margin-top:0">
+          <table>
+            <caption>Model ladder — beats a real baseline, not just the floor</caption>
+            <thead><tr><th>model</th><th>MAE</th><th>QWK</th><th>macro-F1</th><th>Acc</th></tr></thead>
+            <tbody>
+              <tr><td>Trivial (mean)</td><td>1.26</td><td>0.00</td><td>0.07</td><td>0.21</td></tr>
+              <tr><td>TF-IDF + Ridge</td><td>0.58</td><td>0.81</td><td>0.47</td><td>0.52</td></tr>
+              <tr class="win"><td>DistilBERT (ord)</td><td>0.43</td><td>0.88</td><td>0.55</td><td>0.66</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="scroll" style="margin-top:0">
+          <table>
+            <caption>Slice by review length — quality isn't uniform</caption>
+            <thead><tr><th>chars</th><th>share</th><th>% 1–2★</th><th>MAE</th><th>QWK</th><th>mF1</th></tr></thead>
+            <tbody>
+              <tr><td>&lt;150</td><td>11%</td><td>14%</td><td>0.35</td><td>0.87</td><td>0.54</td></tr>
+              <tr><td>150–400</td><td>38%</td><td>18%</td><td>0.36</td><td>0.89</td><td>0.56</td></tr>
+              <tr><td>400–800</td><td>30%</td><td>25%</td><td>0.42</td><td>0.89</td><td>0.57</td></tr>
+              <tr class="hot"><td>800+</td><td>21%</td><td>34%</td><td>0.59</td><td>0.82</td><td>0.52</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:1.2rem"><b>The honest read.</b> Accuracy flatters — even the encoder's <span class="num">0.66</span> accuracy hides a <span class="num">0.55</span> macro-F1 (the 1–2★ blind spot); the trivial model posts 0.21 accuracy but 0.07 macro-F1. And short reviews only <em>look</em> best (14% are 1–2★, so accuracy coasts) — the real degradation is on <strong>long 800+ reviews</strong> (34% 1–2★), where MAE jumps 0.35 → 0.59. <strong class="accent">Route long feedback to human review.</strong></div>
+    </div>
+    <div class="slidenum">Ordinal · results</div>
+  </section>
+
+  <!-- 8 · NB03 aspect -->
+  <section class="slide" data-sec="Notebook 03 · Aspect decomposition">
+    <div class="inner">
+      <p class="eyebrow">Notebook 03 · Aspect decomposition — via the encoder</p>
+      <h2 class="title">The same encoder, read one aspect at a time.</h2>
+      <div class="split split--wide" style="align-items:start">
+        <div class="stack-sm">
+          <p class="body">Route each <strong>clause</strong> to aspect(s) by an 8-aspect lexicon, then score each aspect's clauses with the <strong>same fine-tuned encoder</strong>. The lexicon only <em>routes</em>; the encoder does all the scoring — a faithful decomposition, one model.</p>
+          <div class="chart">
+            <div class="ctitle">Worked example — the decomposition the endpoint serves</div>
+            <div class="scroll" style="margin-top:0;border:none">
+<pre>"great food <b>but</b> the wait was over an hour
+ <b>and</b> the server was rude"
+
+overall  <b>1.94</b>   drivers <span class="g">[wait, service]</span>
+  food <b>4.92</b>   wait <b>1.15</b>   service <b>1.27</b></pre>
+            </div>
+          </div>
+          <div class="chart">
+            <div class="ctitle">Aspect coverage — how often each is discussed (~2.3 / review)</div>
+            <div class="cov">
+              <span class="cn">food</span><div class="ct"><div class="cf" style="width:100%"></div></div><span class="cp">56%</span>
+              <span class="cn">service</span><div class="ct"><div class="cf" style="width:97%"></div></div><span class="cp">55%</span>
+              <span class="cn">wait</span><div class="ct"><div class="cf" style="width:58%"></div></div><span class="cp">33%</span>
+              <span class="cn">price</span><div class="ct"><div class="cf" style="width:46%"></div></div><span class="cp">26%</span>
+              <span class="cn">drinks</span><div class="ct"><div class="cf" style="width:41%"></div></div><span class="cp">23%</span>
+              <span class="cn">ambiance</span><div class="ct"><div class="cf" style="width:34%"></div></div><span class="cp">19%</span>
+              <span class="cn">amenities</span><div class="ct"><div class="cf" style="width:23%"></div></div><span class="cp">13%</span>
+              <span class="cn">cleanliness</span><div class="ct"><div class="cf" style="width:15%"></div></div><span class="cp">8%</span>
+            </div>
+          </div>
+        </div>
+        <div class="stack-sm">
+          <div class="chart">
+            <div class="ctitle">Within 1★ reviews — lowest-scoring aspects = the drivers</div>
+            <div class="hbars">
+              <div class="hbar"><span class="name">wait</span><div class="track"><div class="fill" style="width:26%;background:var(--sev1)"></div></div><span class="meta">1.52 <small>· 43% raised</small></span></div>
+              <div class="hbar"><span class="name">service</span><div class="track"><div class="fill" style="width:33%;background:var(--sev1)"></div></div><span class="meta">1.66 <small>· 57% raised</small></span></div>
+              <div class="hbar"><span class="name">cleanliness</span><div class="track"><div class="fill" style="width:34%;background:var(--sev2)"></div></div><span class="meta">1.67 <small>· 10% raised</small></span></div>
+            </div>
+            <p class="kicker" style="margin-top:16px">Severity × frequency = "which lever." Mean encoder score per aspect falls <strong style="color:var(--ink)">monotonically</strong> as the star drops.</p>
+          </div>
+          <div class="callout" style="margin-top:2px"><b>Drivers, not one winner:</b> the <em>set</em> of aspects the encoder reads below the neutral midpoint, worst-first — near-ties are co-drivers, not one crowned by noise. The operator's #1 lever is <strong>service</strong>, not price; a rare aspect (cleanliness, 8%) turning negative is a low-frequency, high-signal <strong>tripwire</strong>.</div>
+        </div>
+      </div>
+    </div>
+    <div class="slidenum">Aspect model</div>
+  </section>
+
+  <!-- 9 · PRODUCTION ARCH -->
+  <section class="slide" data-sec="Production · Architecture">
+    <div class="inner">
+      <p class="eyebrow">Production — architecture</p>
+      <h2 class="title">A YAML-driven Vertex AI pipeline.</h2>
+      <div class="flow">
+        <div class="node"><div class="nk">GCS · bronze</div><div class="nt">Raw JSON</div><div class="nd">Immutable landing — review + business.</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">BigQuery · medallion</div><div class="nt">bronze → silver → gold</div><div class="nd">Clean · type · dedupe · leakage-safe split; features + ordinal label. Leakage features excluded.</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">Vertex · CustomJob</div><div class="nt">Fine-tune</div><div class="nd">Shared training core, e2-highmem-8.</div></div>
+        <div class="arrow">→</div>
+        <div class="node node--gate"><div class="nk">gate</div><div class="nt">QWK ≥ 0.80?</div><div class="nd">Blocks any regression from deploying.</div></div>
+        <div class="arrow">→</div>
+        <div class="node node--serve"><div class="nk">Cloud Run</div><div class="nt">POST /predict</div><div class="nd">Scale-to-zero, private, versioned revisions.</div></div>
+      </div>
+      <div class="infobar">
+        <span class="pill">Orchestration · <b>Vertex AI Pipelines (KFP v2)</b></span>
+        <span class="pill">Identity · <b>yelp-mlops SA · keyless</b></span>
+        <span class="pill">Region · <b>europe-north1</b> (EU residency, low-carbon)</span>
+        <span class="pill">Serving · <b>min 0 / max 3</b> · 2 vCPU / 4 GiB</span>
+      </div>
+    </div>
+    <div class="slidenum">Architecture</div>
+  </section>
+
+  <!-- 10 · PRODUCTION GOVERNANCE -->
+  <section class="slide" data-sec="Production · MLOps rigor">
+    <div class="inner">
+      <p class="eyebrow">Production — governed, versioned, rollback-able</p>
+      <h2 class="title">The notebook and the cloud run the same loop.</h2>
+      <div class="split">
+        <ul class="ticks">
+          <li><strong>Parity by construction.</strong> Training lives in <span class="num">src/ordinal.train_ordinal</span> — imported by both the notebook and <span class="num">train.py</span>; <span class="num">config.yaml</span> is the single source of hyperparameters, guarded by a parity test.</li>
+          <li><strong>QWK gate (0.80).</strong> A model below the bar can never reach production.</li>
+          <li><strong>Immutable versions.</strong> Each run writes <span class="num">models/&lt;timestamp&gt;</span> → a distinct artifact → a new, rollback-able Cloud Run revision. No mutable "latest".</li>
+          <li><strong>Rollback.</strong> Redeploy an older version (deploy-only branch), or shift traffic to a retained revision instantly.</li>
+        </ul>
+        <div class="stack-sm">
+          <div class="stats" style="grid-template-columns:1fr 1fr;margin-top:0">
+            <div class="stat"><div class="v hl">0.879</div><div class="k">live-run QWK ≥ 0.80 → passed</div></div>
+            <div class="stat"><div class="v">rev</div><div class="k">deployed · private · scale-to-zero</div></div>
+          </div>
+          <div class="scroll" style="margin-top:0">
+<pre><span class="c"># the deployed endpoint's response</span>
+POST /predict
+{"texts":["great food but the wait was
+  over an hour and the server was rude"]}
+
+{"predictions":[{"predicted_score":<b>1.939</b>,
+  "predicted_stars":<b>2</b>,
+  "aspects":{"food":<b>4.92</b>,"wait":<b>1.15</b>,
+    "service":<b>1.27</b>},
+  "drivers":<span class="g">["wait","service"]</span>}]}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slidenum">Governance</div>
+  </section>
+
+  <!-- 11 · CLOSING THE LOOP: QA FLAG + ROUTING + GUARDRAILS -->
+  <section class="slide" data-sec="In operation">
+    <div class="inner">
+      <p class="eyebrow">In operation — closing the loop</p>
+      <h2 class="title">Flag what's off, route the rest.</h2>
+      <div class="grid g-2">
+        <div class="card" style="border-left:3px solid var(--accent)"><span class="tag">the third job · QA</span><h3>Disagreement flag</h3><p>The encoder's score against the given star — the <strong>widest gaps</strong> surface mislabels and genuinely mixed reviews (a 1★ full of praise; a 5★ that lists problems) for a human. This closes the triage · diagnose · <strong>QA</strong> trilogy the overview promised.</p></div>
+        <div class="card"><span class="tag">confidence-banded routing</span><h3>Auto-act, or escalate</h3><p>Auto-act on confident extremes; send the ambiguous <strong>2–3★ middle</strong> and <strong>long 800+</strong> reviews to human review — exactly where the model is least sure and severity concentrates.</p></div>
+        <div class="card"><span class="tag">reliability</span><h3>Trustworthy ranking</h3><p>QWK <span class="num">0.879</span>; in a 10-review live spot-check, <strong>9/10 within one star</strong> and every error a near-miss. The severity <em>ordering</em> — who gets attention first — is dependable.</p></div>
+        <div class="card"><span class="tag">guardrails</span><h3>Human-in-the-loop, never punitive</h3><p>A prioritisation aid, not a verdict. Drift (a COVID-era dip) → monitored retrain. English-scoped. Academic Yelp licence → a demonstration, not a commercial deployment.</p></div>
+      </div>
+    </div>
+    <div class="slidenum">In operation</div>
+  </section>
+
+  <!-- 12 · GENERALIZATION / CLOSE -->
+  <section class="slide slide--hero" data-sec="Why it generalises">
+    <div class="inner">
+      <p class="eyebrow">Why this generalises — and where it goes next</p>
+      <h2 class="title" style="max-width:24ch">Free text → severity + structure, as a governed pipeline.</h2>
+      <p class="lead">Swap restaurant reviews for <strong>courier / last-mile incident reports, delivery-exception notes, or support tickets</strong>. Swap the aspect taxonomy. Keep the architecture — the same method: a domain prior disciplined by the corpus.</p>
+      <div class="grid g-3">
+        <div class="card"><span class="tag">feeds forecasting</span><h3>Aspect time-series</h3><p>Per-aspect scores (wait ↔ staffing) become features for demand forecasting & workforce scheduling.</p></div>
+        <div class="card"><span class="tag">feeds churn</span><h3>Early-warning</h3><p>Declining scores = an at-risk location or customer — early and actionable.</p></div>
+        <div class="card"><span class="tag">next steps</span><h3>LLM + eval harness</h3><p>LLM-based aspect extraction behind a faithfulness/hallucination eval; confidence calibration; active-learning on the ambiguous middle.</p></div>
+      </div>
+      <div class="spectrum" aria-hidden="true">
+        <div class="seg" style="background:var(--sev1)"></div>
+        <div class="seg" style="background:var(--sev2)"></div>
+        <div class="seg" style="background:var(--sev3)"></div>
+        <div class="seg" style="background:var(--sev4)"></div>
+        <div class="seg" style="background:var(--sev5)"></div>
+      </div>
+      <p class="metaline"><span>Thank you.</span><span><b>3 notebooks</b> · EDA → ordinal → aspect</span><span><b>1 governed pipeline</b> · Vertex AI → Cloud Run</span></p>
+    </div>
+    <div class="slidenum">Close</div>
+  </section>
+
+</main>
+
+<div class="hint" id="hint">↑ ↓ / space to navigate &nbsp;·&nbsp; F fullscreen</div>
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var dotsWrap = document.getElementById('dots');
+  var railfill = document.getElementById('railfill');
+  var hudnum = document.getElementById('hudnum');
+  var hudsec = document.getElementById('hudsec');
+  var hint = document.getElementById('hint');
+  document.getElementById('hudtot').textContent = String(total);
+
+  var dots = slides.map(function(s, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Go to slide ' + (i+1) + ' — ' + (s.dataset.sec || ''));
+    b.addEventListener('click', function(){ goTo(i); });
+    dotsWrap.appendChild(b);
+    return b;
+  });
+
+  var current = 0;
+  function setActive(i){
+    current = i;
+    hudnum.textContent = String(i+1).padStart(2,'0');
+    hudsec.textContent = (slides[i].dataset.sec || '').toUpperCase();
+    dots.forEach(function(d,j){ d.setAttribute('aria-current', j===i ? 'true':'false'); });
+  }
+  function goTo(i){
+    i = Math.max(0, Math.min(total-1, i));
+    slides[i].scrollIntoView({ behavior: (matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto':'smooth'), block:'start' });
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); }
+      if(e.intersectionRatio >= 0.55){ setActive(slides.indexOf(e.target)); }
+    });
+  }, { threshold:[0.15, 0.55, 0.9] });
+  slides.forEach(function(s){ io.observe(s); });
+  slides[0].classList.add('in');
+
+  deck.addEventListener('scroll', function(){
+    var max = deck.scrollHeight - deck.clientHeight;
+    var p = max > 0 ? deck.scrollTop / max : 0;
+    railfill.style.width = (p*100).toFixed(2) + '%';
+    if(deck.scrollTop > 40 && hint){ hint.classList.add('hide'); }
+  }, { passive:true });
+
+  window.addEventListener('keydown', function(ev){
+    // let focused controls handle their own keys (e.g. Space/Enter on the theme button or dots)
+    if(ev.target && ev.target.closest && ev.target.closest('button')) return;
+    var k = ev.key;
+    if(k==='ArrowDown'||k==='ArrowRight'||k==='PageDown'||k===' '){ ev.preventDefault(); goTo(current+1); }
+    else if(k==='ArrowUp'||k==='ArrowLeft'||k==='PageUp'){ ev.preventDefault(); goTo(current-1); }
+    else if(k==='Home'){ ev.preventDefault(); goTo(0); }
+    else if(k==='End'){ ev.preventDefault(); goTo(total-1); }
+    else if(k==='f'||k==='F'){
+      var el = document.documentElement;
+      if(!document.fullscreenElement){ if(el.requestFullscreen){ el.requestFullscreen(); } }
+      else if(document.exitFullscreen){ document.exitFullscreen(); }
+    }
+  });
+
+  var root = document.documentElement;
+  document.getElementById('themebtn').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    if(!cur){ cur = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark':'light'; }
+    root.setAttribute('data-theme', cur==='dark' ? 'light':'dark');
+  });
+
+  setActive(0);
+  setTimeout(function(){ if(hint) hint.classList.add('hide'); }, 6000);
+})();
+</script>
+
+</body>
+</html>
